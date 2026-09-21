@@ -1,0 +1,7 @@
+# Riesgo aceptado y documentado — no ignorado en silencio.
+# private-key: JWT signing key intencionalmente vulnerable, parte del
+# diseño educativo de OWASP Juice Shop (lib/insecurity.ts y los .tf de
+# ejemplo). No es un secreto real filtrado por error; es parte del
+# comportamiento esperado de esta app vulnerable de práctica.
+# Revisado por cdejesus12 el 2026-09-21.
+private-key
