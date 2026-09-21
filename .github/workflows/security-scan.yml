@@ -19,11 +19,15 @@ jobs:
           SONAR_HOST_URL: http://localhost:9000
 
       - name: Quality Gate check
+        id: quality_gate
+        continue-on-error: true
         uses: sonarsource/sonarqube-quality-gate-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: SCA - Trivy filesystem scan
+        id: trivy
+        continue-on-error: true
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
@@ -32,6 +36,20 @@ jobs:
           exit-code: 1
 
       - name: DAST - OWASP ZAP baseline scan
+        id: zap
+        continue-on-error: true
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://127.0.0.1:3000'
+
+      - name: Evaluate overall pipeline result
+        if: always()
+        run: |
+          echo "Quality Gate: ${{ steps.quality_gate.outcome }}"
+          echo "Trivy:        ${{ steps.trivy.outcome }}"
+          echo "ZAP:          ${{ steps.zap.outcome }}"
+          if [ "${{ steps.quality_gate.outcome }}" = "failure" ] || [ "${{ steps.trivy.outcome }}" = "failure" ] || [ "${{ steps.zap.outcome }}" = "failure" ]; then
+            echo "❌ Uno o más escaneos de seguridad encontraron hallazgos que bloquean el pipeline."
+            exit 1
+          fi
+          echo "✅ Todos los escaneos pasaron sin hallazgos bloqueantes."
