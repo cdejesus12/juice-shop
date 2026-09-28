@@ -17,6 +17,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Secret Scanning - Gitleaks
+        id: gitleaks
+        continue-on-error: true
+        run: |
+          docker run --rm -v "$(pwd)":/repo zricethezav/gitleaks:v8.21.2 detect \
+            --source="/repo" \
+            --report-path=/repo/gitleaks-report.json \
+            --exit-code=1
+
       - name: SAST - SonarQube
         uses: sonarsource/sonarqube-scan-action@v4
         env:
@@ -54,10 +63,11 @@ jobs:
       - name: Evaluate overall pipeline result
         if: always()
         run: |
+          echo "Gitleaks:     ${{ steps.gitleaks.outcome }}"
           echo "Quality Gate: ${{ steps.quality_gate.outcome }}"
           echo "Trivy:        ${{ steps.trivy.outcome }}"
           echo "ZAP:          ${{ steps.zap.outcome }}"
-          if [ "${{ steps.quality_gate.outcome }}" = "failure" ] || [ "${{ steps.trivy.outcome }}" = "failure" ] || [ "${{ steps.zap.outcome }}" = "failure" ]; then
+          if [ "${{ steps.gitleaks.outcome }}" = "failure" ] || [ "${{ steps.quality_gate.outcome }}" = "failure" ] || [ "${{ steps.trivy.outcome }}" = "failure" ] || [ "${{ steps.zap.outcome }}" = "failure" ]; then
             echo "❌ Uno o más escaneos de seguridad encontraron hallazgos que bloquean el pipeline."
             exit 1
           fi
