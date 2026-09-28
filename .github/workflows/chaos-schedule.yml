@@ -1,0 +1,43 @@
+name: Chaos Engineering Schedule
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      container:
+        description: 'Nombre del contenedor a matar'
+        required: false
+        default: 'test2'
+      port:
+        description: 'Puerto expuesto del contenedor'
+        required: false
+        default: '8082'
+
+permissions:
+  contents: read
+
+jobs:
+  chaos:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Asegurar que el contenedor objetivo esta corriendo
+        run: |
+          docker start "${{ github.event.inputs.container || 'test2' }}" 2>/dev/null || true
+          sleep 2
+
+      - name: Ejecutar chaos_test.sh
+        run: |
+          chmod +x chaos_test.sh
+          ./chaos_test.sh "${{ github.event.inputs.container || 'test2' }}" "${{ github.event.inputs.port || '8082' }}" --auto-restart
+
+      - name: Subir resultados como artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-results-${{ github.run_number }}
+          path: chaos_results.csv
+          retention-days: 90
