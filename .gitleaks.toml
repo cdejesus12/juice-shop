@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignorar el desafio educativo intencional de Juice Shop (iacLeakedKeyChallenge)"
+paths = [
+  '''infrastructure/terraform/networking\.tf'''
+]

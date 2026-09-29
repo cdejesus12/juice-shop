@@ -24,6 +24,7 @@ jobs:
           docker run --rm -v "$(pwd)":/repo -v "$RUNNER_TEMP/gitleaks":/reports \
             zricethezav/gitleaks:v8.21.2 detect \
             --source="/repo" \
+            --config="/repo/.gitleaks.toml" \
             --report-path=/reports/gitleaks-report.json \
             --exit-code=1
 
