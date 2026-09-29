@@ -8,12 +8,11 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 jobs:
   scan:
     runs-on: self-hosted
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +36,7 @@ jobs:
       - name: Quality Gate check
         id: quality_gate
         continue-on-error: true
-        uses: sonarsource/sonarqube-quality-gate-action@master
+        uses: sonarsource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
