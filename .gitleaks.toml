@@ -2,7 +2,13 @@
 useDefault = true
 
 [allowlist]
-description = "Ignorar el desafio educativo intencional de Juice Shop (iacLeakedKeyChallenge)"
+description = "Excluye fixtures y datos de ejemplo intencionales del proyecto original OWASP Juice Shop (contraseñas/tokens/claves de prueba publicas del propio repo, usadas en sus tests y challenges educativos, no secretos reales introducidos por este fork)"
 paths = [
-  '''infrastructure/terraform/networking\.tf'''
+  '''^test/''',
+  '''^frontend/src/app/.*\.spec\.ts$''',
+  '''^frontend/src/app/faucet/faucet\.component\.ts$''',
+  '''^data/static/users\.yml$''',
+  '''^lib/insecurity\.ts$''',
+  '''^routes/login\.ts$''',
+  '''terraform/networking\.tf$'''
 ]
